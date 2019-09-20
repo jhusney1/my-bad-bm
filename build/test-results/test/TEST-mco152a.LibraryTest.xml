@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="mco152a.LibraryTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2019-09-20T18:09:51" hostname="DESKTOP-2AAC68N" time="0.005">
+  <properties/>
+  <testcase name="testSomeLibraryMethod" classname="mco152a.LibraryTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
