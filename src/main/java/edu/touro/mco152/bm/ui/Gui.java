@@ -1,10 +1,6 @@
 
 package edu.touro.mco152.bm.ui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.text.NumberFormat;
-import javax.swing.JProgressBar;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -13,9 +9,12 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-
 import edu.touro.mco152.bm.App;
 import edu.touro.mco152.bm.DiskMark;
+
+import javax.swing.*;
+import java.awt.*;
+import java.text.NumberFormat;
 
 /**
  * Store gui references for easy access
