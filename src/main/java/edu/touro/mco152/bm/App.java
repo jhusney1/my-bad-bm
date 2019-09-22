@@ -219,7 +219,7 @@ public class App {
     public static void loadSavedRuns() {
         Gui.runPanel.clearTable();
         
-        // populate run table with saved runs from db
+        // populate run table with saved runs from db using stream
         System.out.println("loading stored run data");
         DiskRun.findAll().stream().forEach((DiskRun run) -> {
             Gui.runPanel.addRun(run);
@@ -346,11 +346,13 @@ public class App {
             mark.setCumMin(rMin);
         }
     }
-    
+
+    // resets sequence
     static public void resetSequence() {
         nextMarkNumber = 1;
     }
-    
+
+    // retests data
     static public void resetTestData() {
         nextMarkNumber = 1;
         wAvg = -1;

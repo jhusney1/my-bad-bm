@@ -30,7 +30,7 @@ import edu.touro.mco152.bm.ui.Gui;
 
 /**
  * Thread running the disk benchmarking. only one of these threads can run at
- * once.
+ * once. Once it runs, then it can see how long it takes to complete.
  */
 public class DiskWorker extends SwingWorker <Boolean, DiskMark> {
     

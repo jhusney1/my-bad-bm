@@ -4,7 +4,7 @@ package edu.touro.mco152.bm;
 import java.text.DecimalFormat;
 
 /**
- *
+ * This class converts the data into strings so it can return to user
  */
 public class DiskMark {
     
