@@ -14,14 +14,14 @@ import javax.persistence.Persistence;
  * of the Java Persistence EntityManager class. For use in persisting info about
  * new benchmark runs, and reading
  * information about previous benchmark runs.
- * 
+ *
  * @author James
- * 
+ *
  */
-public class EM {   //TODO  Come up with a better name (besides EntityManager  :-)  
-    
+public class EM {   //TODO  Come up with a better name (besides EntityManager  :-)
+
     private static EntityManager em = null;
-    
+
     public static EntityManager getEntityManager() {
         if (em == null) {
             EntityManagerFactory emf = Persistence.createEntityManagerFactory("jDiskMarkPU");
