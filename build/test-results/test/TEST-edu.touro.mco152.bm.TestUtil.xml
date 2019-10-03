@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="edu.touro.mco152.bm.TestUtil" tests="2" skipped="0" failures="1" errors="0" timestamp="2019-09-25T01:52:03" hostname="DESKTOP-2AAC68N" time="1.166">
+<testsuite name="edu.touro.mco152.bm.TestUtil" tests="2" skipped="0" failures="1" errors="0" timestamp="2019-09-25T01:59:51" hostname="DESKTOP-2AAC68N" time="1.089">
   <properties/>
-  <testcase name="RandomIntTest()" classname="edu.touro.mco152.bm.TestUtil" time="0.006">
+  <testcase name="RandomIntTest()" classname="edu.touro.mco152.bm.TestUtil" time="0.005">
     <failure message="org.opentest4j.AssertionFailedError: expected: &lt;true&gt; but was: &lt;false&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: expected: &lt;true&gt; but was: &lt;false&gt;
 	at org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:55)
 	at org.junit.jupiter.api.AssertionUtils.failNotEqual(AssertionUtils.java:62)
@@ -99,7 +99,7 @@
 	at java.lang.Thread.run(Thread.java:748)
 </failure>
   </testcase>
-  <testcase name="getDiskInfoTest()" classname="edu.touro.mco152.bm.TestUtil" time="1.159"/>
+  <testcase name="getDiskInfoTest()" classname="edu.touro.mco152.bm.TestUtil" time="1.083"/>
   <system-out><![CDATA[os: Windows 10
 
 DiskModel                  DriveLetter

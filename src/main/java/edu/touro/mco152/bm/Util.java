@@ -54,8 +54,7 @@ public class Util {
         // so add 1 to make it inclusive
         int randomNum = rand.nextInt((max - min) + 1) + min;
 
-        // error on purpose for hw
-        return 1;
+        return randomNum;
     }
     
     /*
