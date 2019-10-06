@@ -1,27 +1,19 @@
 
 package edu.touro.mco152.bm;
 
-import java.beans.PropertyChangeEvent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.SwingWorker.StateValue;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
-
 import edu.touro.mco152.bm.persist.DiskRun;
 import edu.touro.mco152.bm.ui.Gui;
 import edu.touro.mco152.bm.ui.MainFrame;
 import edu.touro.mco152.bm.ui.SelectFrame;
 
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.SwingWorker.StateValue;
+import javax.swing.*;
+import javax.swing.UIManager.LookAndFeelInfo;
+import java.beans.PropertyChangeEvent;
+import java.io.*;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Primary class for global variables.
@@ -221,9 +213,9 @@ public class App {
         
         // populate run table with saved runs from db
         System.out.println("loading stored run data");
-        DiskRun.findAll().stream().forEach((DiskRun run) -> {
-            Gui.runPanel.addRun(run);
-        });
+        //DiskRun.findAll().stream().forEach((DiskRun run) -> {
+         //   Gui.runPanel.addRun(run);
+       // });
     }
     
     public static void clearSavedRuns() {
