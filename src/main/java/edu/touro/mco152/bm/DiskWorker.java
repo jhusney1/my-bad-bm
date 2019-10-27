@@ -1,17 +1,12 @@
 
 package edu.touro.mco152.bm;
 
-import static edu.touro.mco152.bm.App.KILOBYTE;
-import static edu.touro.mco152.bm.App.MEGABYTE;
-import static edu.touro.mco152.bm.App.blockSizeKb;
-import static edu.touro.mco152.bm.App.dataDir;
-import static edu.touro.mco152.bm.App.msg;
-import static edu.touro.mco152.bm.App.numOfBlocks;
-import static edu.touro.mco152.bm.App.numOfMarks;
-import static edu.touro.mco152.bm.App.testFile;
-import static edu.touro.mco152.bm.DiskMark.MarkType.READ;
-import static edu.touro.mco152.bm.DiskMark.MarkType.WRITE;
+import edu.touro.mco152.bm.persist.DiskRun;
+import edu.touro.mco152.bm.persist.EM;
+import edu.touro.mco152.bm.ui.Gui;
 
+import javax.persistence.EntityManager;
+import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,37 +15,34 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.persistence.EntityManager;
-import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
 
-import edu.touro.mco152.bm.persist.DiskRun;
-import edu.touro.mco152.bm.persist.EM;
-import edu.touro.mco152.bm.ui.Gui;
+import static edu.touro.mco152.bm.App.*;
+import static edu.touro.mco152.bm.DiskMark.MarkType.READ;
+import static edu.touro.mco152.bm.DiskMark.MarkType.WRITE;
 
 /**
  * Thread running the disk benchmarking. only one of these threads can run at
  * once.
  */
-public class DiskWorker extends SwingWorker <Boolean, DiskMark> {
+public class DiskWorker  <Boolean, DiskMark>  {
     
     @Override
     protected Boolean doInBackground() throws Exception {
-        
+
         System.out.println("*** starting new worker thread");
         msg("Running readTest "+App.readTest+"   writeTest "+App.writeTest);
         msg("num files: "+App.numOfMarks+", num blks: "+App.numOfBlocks
            +", blk size (kb): "+App.blockSizeKb+", blockSequence: "+App.blockSequence);
-        
+
         int wUnitsComplete = 0,
             rUnitsComplete = 0,
             unitsComplete;
-        
+
         int wUnitsTotal = App.writeTest ? numOfBlocks * numOfMarks : 0;
         int rUnitsTotal = App.readTest ? numOfBlocks * numOfMarks : 0;
         int unitsTotal = wUnitsTotal + rUnitsTotal;
         float percentComplete;
-        
+
         int blockSize = blockSizeKb*KILOBYTE;
         byte [] blockArr = new byte [blockSize];
         for (int b=0; b<blockArr.length; b++) {
@@ -58,18 +50,18 @@ public class DiskWorker extends SwingWorker <Boolean, DiskMark> {
                 blockArr[b]=(byte)0xFF;
             }
         }
-   
+
         DiskMark wMark, rMark;
-        
+
         Gui.updateLegend();
-        
+
         if (App.autoReset == true) {
             App.resetTestData();
             Gui.resetTestData();
         }
-        
+
         int startFileNum = App.nextMarkNumber;
-        
+
         if(App.writeTest) {
             DiskRun run = new DiskRun(DiskRun.IOMode.WRITE, App.blockSequence);
             run.setNumMarks(App.numOfMarks);
@@ -77,21 +69,21 @@ public class DiskWorker extends SwingWorker <Boolean, DiskMark> {
             run.setBlockSize(App.blockSizeKb);
             run.setTxSize(App.targetTxSizeKb());
             run.setDiskInfo(Util.getDiskInfo(dataDir));
-            
+
             msg("disk info: ("+ run.getDiskInfo()+")");
-            
+
             Gui.chartPanel.getChart().getTitle().setVisible(true);
             Gui.chartPanel.getChart().getTitle().setText(run.getDiskInfo());
-            
+
             if (App.multiFile == false) {
                 testFile = new File(dataDir.getAbsolutePath()+File.separator+"testdata.jdm");
-            }            
+            }
             for (int m=startFileNum; m<startFileNum+App.numOfMarks && !isCancelled(); m++) {
-                
+
                 if (App.multiFile == true) {
                     testFile = new File(dataDir.getAbsolutePath()
                             + File.separator+"testdata"+m+".jdm");
-                }   
+                }
                 wMark = new DiskMark(WRITE);
                 wMark.setMarkNum(m);
                 long startTime = System.nanoTime();
@@ -99,7 +91,7 @@ public class DiskWorker extends SwingWorker <Boolean, DiskMark> {
 
                 String mode = "rw";
                 if (App.writeSyncEnable) { mode = "rwd"; }
-                
+
                 try {
                     try (RandomAccessFile rAccFile = new RandomAccessFile(testFile,mode)) {
                         for (int b=0; b<numOfBlocks; b++) {
@@ -132,25 +124,25 @@ public class DiskWorker extends SwingWorker <Boolean, DiskMark> {
                         + Util.displayString(sec)+" sec)");
                 App.updateMetrics(wMark);
                 publish(wMark);
-                
+
                 run.setRunMax(wMark.getCumMax());
                 run.setRunMin(wMark.getCumMin());
                 run.setRunAvg(wMark.getCumAvg());
                 run.setEndTime(new Date());
             }
-            
+
             EntityManager em = EM.getEntityManager();
             em.getTransaction().begin();
             em.persist(run);
             em.getTransaction().commit();
-            
+
             Gui.runPanel.addRun(run);
         }
-        
-        
+
+
         // try renaming all files to clear catch
         if (App.readTest && App.writeTest && !isCancelled()) {
-            JOptionPane.showMessageDialog(Gui.mainFrame, 
+            JOptionPane.showMessageDialog(Gui.mainFrame,
                 "For valid READ measurements please clear the disk cache by\n" +
                 "using the included RAMMap.exe or flushmem.exe utilities.\n" +
                 "Removable drives can be disconnected and reconnected.\n" +
@@ -158,7 +150,7 @@ public class DiskWorker extends SwingWorker <Boolean, DiskMark> {
                 "independantly by doing a cold reboot after the WRITE",
                 "Clear Disk Cache Now",JOptionPane.PLAIN_MESSAGE);
         }
-        
+
         if (App.readTest) {
             DiskRun run = new DiskRun(DiskRun.IOMode.READ, App.blockSequence);
             run.setNumMarks(App.numOfMarks);
@@ -166,14 +158,14 @@ public class DiskWorker extends SwingWorker <Boolean, DiskMark> {
             run.setBlockSize(App.blockSizeKb);
             run.setTxSize(App.targetTxSizeKb());
             run.setDiskInfo(Util.getDiskInfo(dataDir));
-              
+
             msg("disk info: ("+ run.getDiskInfo()+")");
-            
+
             Gui.chartPanel.getChart().getTitle().setVisible(true);
             Gui.chartPanel.getChart().getTitle().setText(run.getDiskInfo());
-            
+
             for (int m=startFileNum; m<startFileNum+App.numOfMarks && !isCancelled(); m++) {
-                
+
                 if (App.multiFile == true) {
                     testFile = new File(dataDir.getAbsolutePath()
                             + File.separator+"testdata"+m+".jdm");
@@ -214,21 +206,21 @@ public class DiskWorker extends SwingWorker <Boolean, DiskMark> {
                         + "(MBread "+mbRead+" in "+sec+" sec)");
                 App.updateMetrics(rMark);
                 publish(rMark);
-                
+
                 run.setRunMax(rMark.getCumMax());
                 run.setRunMin(rMark.getCumMin());
                 run.setRunAvg(rMark.getCumAvg());
                 run.setEndTime(new Date());
             }
-            
+
             EntityManager em = EM.getEntityManager();
             em.getTransaction().begin();
             em.persist(run);
             em.getTransaction().commit();
-            
+
             Gui.runPanel.addRun(run);
         }
-        App.nextMarkNumber += App.numOfMarks;      
+        App.nextMarkNumber += App.numOfMarks;
         return true;
     }
     
