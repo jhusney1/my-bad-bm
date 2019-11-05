@@ -24,10 +24,18 @@ import static edu.touro.mco152.bm.DiskMark.MarkType.WRITE;
  * Thread running the disk benchmarking. only one of these threads can run at
  * once.
  */
-public class DiskWorker  <Boolean, DiskMark>  {
-    
-    @Override
-    protected Boolean doInBackground() throws Exception {
+public class DiskWorker <Boolean, T>  {
+
+
+    UserInteraction ui;
+
+    public DiskWorker (UserInteraction ui){
+        this.ui = ui;
+    }
+
+
+    protected boolean backgroundWork() throws Exception {
+
 
         System.out.println("*** starting new worker thread");
         msg("Running readTest "+App.readTest+"   writeTest "+App.writeTest);
@@ -78,7 +86,7 @@ public class DiskWorker  <Boolean, DiskMark>  {
             if (App.multiFile == false) {
                 testFile = new File(dataDir.getAbsolutePath()+File.separator+"testdata.jdm");
             }
-            for (int m=startFileNum; m<startFileNum+App.numOfMarks && !isCancelled(); m++) {
+            for (int m=startFileNum; m<startFileNum+App.numOfMarks && ui.hasBeenCancelled(); m++) {
 
                 if (App.multiFile == true) {
                     testFile = new File(dataDir.getAbsolutePath()
@@ -106,7 +114,7 @@ public class DiskWorker  <Boolean, DiskMark>  {
                             wUnitsComplete++;
                             unitsComplete = rUnitsComplete + wUnitsComplete;
                             percentComplete = (float)unitsComplete/(float)unitsTotal * 100f;
-                            setProgress((int)percentComplete);
+                            ui.setTheProgress((int)percentComplete);
                         }
                     }
                 } catch (FileNotFoundException ex) {
@@ -123,7 +131,7 @@ public class DiskWorker  <Boolean, DiskMark>  {
                         + "("+Util.displayString(mbWritten)+ "MB written in "
                         + Util.displayString(sec)+" sec)");
                 App.updateMetrics(wMark);
-                publish(wMark);
+                ui.publisher(wMark);
 
                 run.setRunMax(wMark.getCumMax());
                 run.setRunMin(wMark.getCumMin());
@@ -141,7 +149,7 @@ public class DiskWorker  <Boolean, DiskMark>  {
 
 
         // try renaming all files to clear catch
-        if (App.readTest && App.writeTest && !isCancelled()) {
+        if (App.readTest && App.writeTest && ui.hasBeenCancelled()) {
             JOptionPane.showMessageDialog(Gui.mainFrame,
                 "For valid READ measurements please clear the disk cache by\n" +
                 "using the included RAMMap.exe or flushmem.exe utilities.\n" +
@@ -164,7 +172,7 @@ public class DiskWorker  <Boolean, DiskMark>  {
             Gui.chartPanel.getChart().getTitle().setVisible(true);
             Gui.chartPanel.getChart().getTitle().setText(run.getDiskInfo());
 
-            for (int m=startFileNum; m<startFileNum+App.numOfMarks && !isCancelled(); m++) {
+            for (int m=startFileNum; m<startFileNum+App.numOfMarks && !ui.hasBeenCancelled(); m++) {
 
                 if (App.multiFile == true) {
                     testFile = new File(dataDir.getAbsolutePath()
@@ -189,7 +197,7 @@ public class DiskWorker  <Boolean, DiskMark>  {
                             rUnitsComplete++;
                             unitsComplete = rUnitsComplete + wUnitsComplete;
                             percentComplete = (float)unitsComplete/(float)unitsTotal * 100f;
-                            setProgress((int)percentComplete);
+                            ui.setTheProgress((int)percentComplete);
                         }
                     }
                 } catch (FileNotFoundException ex) {
@@ -205,7 +213,7 @@ public class DiskWorker  <Boolean, DiskMark>  {
                 msg("m:"+m+" READ IO is "+rMark.getBwMbSec()+" MB/s    "
                         + "(MBread "+mbRead+" in "+sec+" sec)");
                 App.updateMetrics(rMark);
-                publish(rMark);
+                ui.publisher(rMark);
 
                 run.setRunMax(rMark.getCumMax());
                 run.setRunMin(rMark.getCumMin());
@@ -223,8 +231,8 @@ public class DiskWorker  <Boolean, DiskMark>  {
         App.nextMarkNumber += App.numOfMarks;
         return true;
     }
-    
-    @Override
+
+
     protected void process(List<DiskMark> markList) {
         markList.stream().forEach((m) -> {
             if (m.type==DiskMark.MarkType.WRITE) {
@@ -234,8 +242,8 @@ public class DiskWorker  <Boolean, DiskMark>  {
             }
         });
     }
-    
-    @Override
+
+
     protected void done() {
         if (App.autoRemoveData) {
             Util.deleteDirectory(dataDir);

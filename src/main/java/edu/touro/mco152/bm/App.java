@@ -19,7 +19,9 @@ import java.util.logging.Logger;
  * Primary class for global variables.
  */
 public class App {
-    
+
+    public static SwingInteraction si;
+
     public static final String APP_CACHE_DIR = System.getProperty("user.home") + File.separator + ".jDiskMark";
     public static final String PROPERTIESFILE = "jdm.properties";
     public static final String DATADIRNAME = "jDiskMarkData";
@@ -233,9 +235,9 @@ public class App {
             msg("worker is null abort..."); 
             return;
         }
-        worker.cancel(true);
+        si.cancel(true);
     }
-    
+
     public static void startBenchmark() {
         
         //1. check that there isn't already a worker in progress
@@ -272,8 +274,8 @@ public class App {
         if (dataDir.exists() == false) { dataDir.mkdirs(); }
         
         //7. start disk worker thread
-        worker = new DiskWorker();
-        worker.addPropertyChangeListener((final PropertyChangeEvent event) -> {
+        worker = new DiskWorker(si);
+        si.addPropertyChangeListener((final PropertyChangeEvent event) -> {
             switch (event.getPropertyName()) {
                 case "progress":
                     int value = (Integer)event.getNewValue();
@@ -292,7 +294,7 @@ public class App {
                     break;
             }
         });
-        worker.execute();
+        si.execute();
     }
     
     public static long targetMarkSizeKb() {
